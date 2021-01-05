@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title style="color:black;">Google sign in</title>
+  <meta name="google-signin-scope" content="profile email">
+  <meta name="google-signin-client_id" content="264665637379-hoevek8dtg55ab1av1rup65repra3g1l.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+  <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/live/3.1/firebase.js"></script>
+</head>
+
+<a id="sign_out" href="#" onclick="signOut(); outFunction()"
+  style="color:white; font-size:20px; text-decoration:none; background-color: DodgerBlue; font-family: Arial;
+  position: absolute; top:190px; left: 70px; border:3px; border-style:solid; 
+  border-color:DodgerBlue; padding: 0.4em">Sign out</a>
+
+<body style="background-color:black;">
+  <div id="my-signin2" onclick="inFunction()"></div>
+
+  <script>
+    
+    var z = 1;
+    var movy = 10;
+    var cnvs = 220;
+    var cent = cnvs / 2;
+    var profile_image;
+
+    var database = firebase.database();
+
+    function preload() {
+      img = loadImage('https://lh3.googleusercontent.com/ogw/ADGmqu91-7YJGZpMdnku9ikiyWS0Ox4rfmEd9bPavR5m=s83-c-mo');
+    }
+
+    function setup() {
+
+      createCanvas(cnvs, cnvs/2 + movy);
+
+      var firebaseConfig = {
+
+        apiKey: "AIzaSyD36Dzi0r-CUkfEh1lYoKBPa3bLJTbq8ZQ",
+        authDomain: "tinta-database.firebaseapp.com",
+        databaseURL: "https://tinta-database-default-rtdb.firebaseio.com",
+        projectId: "tinta-database",
+        storageBucket: "tinta-database.appspot.com",
+        messagingSenderId: "918367886645",
+        appId: "1:918367886645:web:d8e000497e0aae7243407c"
+      }
+      firebase.initializeApp(firebaseConfig);
+      console.log('setup event without errors');
+    }
+
+    function draw() {
+      background(0);
+      image(img, cnvs/4, movy, cnvs/2, height - movy);
+    }
+    
+    function onSuccess(googleUser) {
+
+      var profile = googleUser.getBasicProfile();
+      console.log('Logged in as: ' + profile.getGivenName());
+      console.log('Full Name: ' + profile.getName());
+
+      profile_image = profile.getImageUrl();
+      img = loadImage(profile_image);
+
+      var data = {
+        userEmail: profile.getEmail()
+      };
+
+      firebase.database().ref('logins/' + 'users').push(data);
+      console.log(data);
+      console.log('login event without errors');
+    }
+
+    function onFailure(error) {
+      console.log(error);
+    }
+
+    function renderButton() {
+      gapi.signin2.render('my-signin2', {
+        'scope': 'profile email',
+        'width': 220,
+        'height': 50,
+        'longtitle': true,
+        'theme': 'dark',
+        'onsuccess': onSuccess,
+        'onfailure': onFailure
+      });
+    }
+  
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function () {
+        console.log('User signed out');
+      });
+    }
+
+    function inFunction() {
+      var x = document.getElementById("sign_out");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } 
+    }
+
+    function outFunction() {
+      var x = document.getElementById("sign_out");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+      img = loadImage('https://lh3.googleusercontent.com/ogw/ADGmqu91-7YJGZpMdnku9ikiyWS0Ox4rfmEd9bPavR5m=s83-c-mo');
+    }
+
+  </script>
+</body>
+</html>
